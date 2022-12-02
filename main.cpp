@@ -35,33 +35,39 @@ int main(int argc, char *argv[]) {
     Classifier_tree_2 cl_2;
     Classifier_tree_1 cl_1;
 
-    int test[60][10];
+    int test[20][10];
 
-    //read_file(test, "train.txt");
+    //read_file(test, "test.txt");
     //
-    //for (int i=0; i<60; i++) {
+    //for (int i=0; i<20; i++) {
     //    for (int j=0; j<10; j++) {
     //        cout << test[i][j] << " ";
     //    }
-    //    cout << cl.recognize(test[i]) << endl;
+    //    cout << cl_1.recognize(test[i]) << endl;
     //}
 
-    cout << "Введите характеристики объекта" << endl;
+    cout << "Enter the characteristics of the object" << endl;
 
     for (int i=0; i<10; i++) {
         a = 0;
-        cout << "признак 1: ";
-        cin >> a;
+        cout << "feature " << i+1 << ": ";
+        try {
+            cin >> a;
+        }
+        catch(...) {
+            cerr << "incorrect format" << endl;
+        }
         obj[i] = a;
     }
 
-    cout << "Ваш объект: ";
+    cout << endl << "Your object: ";
     for (int i=0; i<10; i++) {
         cout << obj[i] << " ";
     }
     cout << endl;
 
-    //cout << cl.recognize(obj) << endl;
+    cout << "object class by tree 1: " << cl_1.recognize(obj) << endl;
+    cout << "object class by tree 2: " << cl.recognize(obj) << endl;
 
     return 0;
 }
