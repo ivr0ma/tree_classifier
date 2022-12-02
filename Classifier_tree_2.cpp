@@ -2,25 +2,30 @@
 
 using namespace std;
 
+//
+// конструктор класса, осуществляет начальную инициализацию
+//
 Classifier_tree_2::Classifier_tree_2() {
-    cout << "created" << endl;
-    work_tag[0][0] = 0;
-    work_tag[0][1] = 3;
-    work_tag[1][0] = 3;
-    work_tag[1][1] = 4;
-    work_tag[2][0] = 4;
-    work_tag[2][1] = 8;
+    work_tag[0][0] = 0; // признак 1 для узла 1
+    work_tag[0][1] = 3; // признак 2 для узла 1
+    work_tag[1][0] = 3; // признак 1 для узла 2
+    work_tag[1][1] = 4; // признак 2 для узла 2
+    work_tag[2][0] = 4; // признак 1 для узла 3
+    work_tag[2][1] = 8; // признак 2 для узла 3
 
-    func_coef[0][0] = -69.78;
-    func_coef[0][1] = -1.96;
-    func_coef[1][0] = -156.65;
-    func_coef[1][1] = -4.75;
-    func_coef[2][0] = 45.58;
-    func_coef[2][1] = -0.416;
+    func_coef[0][0] = -69.78;   // с1 для узла 1
+    func_coef[0][1] = -1.96;    // с2 для узла 1
+    func_coef[1][0] = -156.65;  // с1 для узла 2
+    func_coef[1][1] = -4.75;    // с2 для узла 2
+    func_coef[2][0] = 45.58;    // с1 для узла 3
+    func_coef[2][1] = -0.416;   // с2 для узла 3
 
-    read_file("train.txt");
+    read_file("train.txt"); // путь до файла
 }
 
+//
+// печать информации о классе
+//
 void Classifier_tree_2::print() {
     for (int i=0; i<3; i++) {
         cout << "node " << i << " features " << work_tag[i][0] << "," << work_tag[i][1] << ": c1=" << func_coef[i][0] << " c2=" << func_coef[i][1] << endl;
@@ -35,6 +40,9 @@ void Classifier_tree_2::print() {
     print_cl(cl_D);
 }
 
+//
+// печать класса
+//
 void Classifier_tree_2::print_cl(int (*cl)[10]) {
     for (int i=0; i<15; i++) {
         for (int j=0; j<10; j++) {
@@ -44,6 +52,9 @@ void Classifier_tree_2::print_cl(int (*cl)[10]) {
     }
 }
 
+//
+// считываем объекты классов A,B,C,D из файла
+//
 void Classifier_tree_2::read_file(char *file_path) {
     FILE *f = fopen(file_path, "r");
     int a;
@@ -52,10 +63,10 @@ void Classifier_tree_2::read_file(char *file_path) {
         cerr << "no such file." << endl;
         return ;
     }
-    //cerr << "111" << endl;
+
+    // читаем данные из файла и заносим их в массивы
     for (int i=0; i<60; i++) {
         for (int j=0; j<10; j++) {
-            //cerr << "222" << endl;
             if (fscanf(f, "%d", &a) == 1) {
                 if (i < 15) {
                     cl_A[i][j] = a;
@@ -80,6 +91,9 @@ void Classifier_tree_2::read_file(char *file_path) {
     }
 }
 
+//
+// считает расстояние между объектами класса
+//
 double Classifier_tree_2::distance(int node_num, int *x, int *y) {
     int f1,f2;
 
@@ -89,19 +103,21 @@ double Classifier_tree_2::distance(int node_num, int *x, int *y) {
     return sqrt((x[f1] - y[f1])*(x[f1] - y[f1]) + (x[f2] - y[f2])*(x[f2] - y[f2]));
 }
 
+//
+// реализация дискриминантной функции
+//
 int Classifier_tree_2::discr_func(int node_num, int *obj) {
     // F = c1 - c2*x2 - x1
+    // определяем коэффициенты для дискриминантной функции
     double c1, c2, x1, x2, F;
     c1 = func_coef[node_num][0];
     c2 = func_coef[node_num][1];
     x1 = obj[work_tag[node_num][0]];
     x2 = obj[work_tag[node_num][1]];
 
-    //cout << endl << c1 << " " << c2  << " " << x1 << " " << x2 << endl;
-    //cout << c1 - c2*x2 - x1 << endl;
+    F = c1 - c2*x2 - x1; // дискриминантная функция
 
-    F = c1 - c2*x2 - x1;
-
+    // классификация объекта в зависимости от узла
     if (node_num == 0) {
         if (F > 0)
             return 0;
@@ -122,13 +138,17 @@ int Classifier_tree_2::discr_func(int node_num, int *obj) {
     }
 }
 
+//
+// реализация метода 1-го ближайшего соседа
+//
 int Classifier_tree_2::neighbour_1(int node_num, int *obj) {
-    double min1, min2;
-    double curr;
-    int (*M1)[10];
-    int (*M2)[10];
-    int n1, n2;
+    double min1, min2; // минимумы
+    double curr;       // тек. значение
+    int (*M1)[10]; // класс 1
+    int (*M2)[10]; // класс 2
+    int n1, n2;    // размерности классов 1 и 2 соответсвенно
 
+    // определение классов для каждого узла
     if (node_num == 0) {
         M1 = cl_AC;
         M2 = cl_BD;
@@ -148,23 +168,25 @@ int Classifier_tree_2::neighbour_1(int node_num, int *obj) {
         n2 = 15;
     }
 
+    // инициализируем переменную
     min1 = distance(node_num, obj, M1[0]);
 
+    // поиск минимума
     for (int i=1; i<n1; i++) {
         curr = distance(node_num, obj, M1[i]);
         if (curr < min1)
             min1 = curr;
     }
 
+    // инициализируем переменную
     min2 = distance(node_num, obj, M2[0]);
 
-    for (int i=1; i<n1; i++) {
+    // поиск минимума
+    for (int i=1; i<n2; i++) {
         curr = distance(node_num, obj, M2[i]);
         if (curr < min2)
             min2 = curr;
     }
-
-    //cout << min1 << " " << min2 << endl;
 
     if (min1 < min2)
         return 0;
@@ -172,14 +194,18 @@ int Classifier_tree_2::neighbour_1(int node_num, int *obj) {
         return 1;
 }
 
+//
+// реализация метода k ближайших соседей
+//
 int Classifier_tree_2::neighbour_k(int k, int node_num, int *obj) {
-    double *min1, *min2;
-    double curr;
-    int (*M1)[10];
-    int (*M2)[10];
-    int n1, n2;
-    int count;
+    double *min1, *min2; // минимумы
+    double curr;         // тек. значение
+    int (*M1)[10]; // класс 1
+    int (*M2)[10]; // класс 2
+    int n1, n2;    // размерности классов 1 и 2 соответсвенно
+    int count;     // голосование для классификации
 
+    // определение классов для каждого узла
     if (node_num == 0) {
         M1 = cl_AC;
         M2 = cl_BD;
@@ -199,16 +225,19 @@ int Classifier_tree_2::neighbour_k(int k, int node_num, int *obj) {
         n2 = 15;
     }
 
+    // если ошибочные данные
     if (k > n1 || k > n2)
         return -1;
 
     min1 = new double[k];
     min2 = new double[k];
 
+    // инициализируем массив минимумов
     for (int j=0; j<k; j++) {
         min1[j] = distance(node_num, obj, M1[j]);
     }
 
+    // сортировка массива
     for (int j=1; j<k; j++) {
         for (int i=0; i<k-1; i++) {
             if (min1[i] > min1[i+1]) {
@@ -219,15 +248,9 @@ int Classifier_tree_2::neighbour_k(int k, int node_num, int *obj) {
         }
     }
 
-    //cout << "min1= ";
-    for (int i=0; i<k; i++) {
-        //cout << min1[i] << " ";
-    }
-    //cout << endl;
-
+    // поиск вектора минимумов
     for (int i=k; i<n1; i++) {
         curr = distance(node_num, obj, M1[i]);
-        //curr = M1[i][6];
         for (int j=0; j<k; j++) {
             if (curr < min1[j]) {
                 for (int r=j; r<k-1; r++) {
@@ -238,10 +261,12 @@ int Classifier_tree_2::neighbour_k(int k, int node_num, int *obj) {
         }
     }
 
+    // инициализируем массив минимумов
     for (int j=0; j<k; j++) {
         min2[j] = distance(node_num, obj, M2[j]);
     }
 
+    // сортировка массива
     for (int j=1; j<k; j++) {
         for (int i=0; i<k-1; i++) {
             if (min2[i] > min2[i+1]) {
@@ -252,15 +277,9 @@ int Classifier_tree_2::neighbour_k(int k, int node_num, int *obj) {
         }
     }
 
-    //cout << "min2= ";
-    for (int i=0; i<k; i++) {
-        //cout << min2[i] << " ";
-    }
-    //cout << endl;
-
+    // поиск вектора минимумов
     for (int i=0; i<n2; i++) {
         curr = distance(node_num, obj, M2[i]);
-        //curr = M1[i][6];
         for (int j=0; j<k; j++) {
             if (curr < min2[j]) {
                 for (int r=j; r<k-1; r++) {
@@ -271,13 +290,12 @@ int Classifier_tree_2::neighbour_k(int k, int node_num, int *obj) {
         }
     }
 
+    // голосование, выбор ближайшего класса
     count = 0;
     for (int i=0; i<k; i++) {
         if (min1[i] > min2[i])
             count++;
     }
-
-    //cout << count << " " << k/2 << endl;
 
     delete[] min1;
     delete[] min2;
@@ -288,15 +306,18 @@ int Classifier_tree_2::neighbour_k(int k, int node_num, int *obj) {
         return 0;
 }
 
+//
+// функция голосования
+//
 bool Classifier_tree_2::voting(int node_num, int * obj) {
-    return discr_func(node_num, obj) + neighbour_k(1, node_num, obj) + neighbour_k(3, node_num, obj) >= 2;
-    //return neighbour_k(3, node_num, obj) >= 1;
-    //return discr_func(node_num, obj) >= 1;
-    //return neighbour_1(node_num, obj) >= 1;
-    //return neighbour_1(node_num, obj) + neighbour_k(3, node_num, obj) >= 1;
+    return discr_func(node_num, obj) + neighbour_1(node_num, obj) + neighbour_k(3, node_num, obj) >= 2;
 }
 
+//
+// классификация объекта
+//
 char Classifier_tree_2::recognize(int *obj) {
+    // обход дерева и запуск функции голосования для каждого узла
     if (not voting(0, obj)) {
         if (not voting(1, obj))
             return 'A';

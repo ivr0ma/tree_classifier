@@ -1,7 +1,5 @@
 #include <iostream>
-#include <processenv.h>
 #include "string"
-#include "windows.h"
 using namespace std;
 
 #include "classifier.h"
@@ -29,36 +27,41 @@ void read_file(int (*test)[10], const char *file_path) {
     }
 }
 
-int x[2]={0,0};
-int y[2]={3,4};
-
-int obj_1[10] = {18, 13, 26, 57, 35, 17, 13, 11, 23, 22}; // A
-int obj_2[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // D
-int obj_3[10] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100}; // D
+int obj[10];
+int a;
 
 int main(int argc, char *argv[]) {
     Classifier cl;
     Classifier_tree_2 cl_2;
     Classifier_tree_1 cl_1;
 
-    //cout << cl.recognize(obj_2) << endl;
     int test[60][10];
 
-    read_file(test, "train.txt");
+    //read_file(test, "train.txt");
+    //
+    //for (int i=0; i<60; i++) {
+    //    for (int j=0; j<10; j++) {
+    //        cout << test[i][j] << " ";
+    //    }
+    //    cout << cl.recognize(test[i]) << endl;
+    //}
 
-//    for (int i=0; i<60; i++) {
-//        for (int j=0; j<10; j++) {
-//            cout << test[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
+    cout << "Введите характеристики объекта" << endl;
 
-    for (int i=0; i<60; i++) {
-        for (int j=0; j<10; j++) {
-            cout << test[i][j] << " ";
-        }
-        cout << cl.recognize(test[i]) << endl;
+    for (int i=0; i<10; i++) {
+        a = 0;
+        cout << "признак 1: ";
+        cin >> a;
+        obj[i] = a;
     }
+
+    cout << "Ваш объект: ";
+    for (int i=0; i<10; i++) {
+        cout << obj[i] << " ";
+    }
+    cout << endl;
+
+    //cout << cl.recognize(obj) << endl;
 
     return 0;
 }
